@@ -38,19 +38,18 @@ object G {
 
   def is_connected(g: Graph, i: Int, j: Int): Boolean = {
     val neighbors_i = g(i)
-    try {  // neigobors_i は整順化されているので、以下では二分法で検索している
-      var k1 = 0; var k2 = neighbors_i.length - 1
-      while (k1 <= k2) {
-        val m = k1 + (k2 - k1) / 2
-        val v = neighbors_i(m)
-        if (v < j) k1 = m + 1
-        else if (j < v) k2 = m - 1
-        else throw new Exception()
-      }
-      false
-    } catch {
-      case e: Exception => true
+    // neigobors_i は整順化されているので、以下では二分法で検索している
+    var k1 = 0
+    var k2 = neighbors_i.length - 1
+
+    while (k1 <= k2) {
+      val m = k1 + (k2 - k1) / 2
+      val v = neighbors_i(m)
+      if (v < j) k1 = m + 1
+      else if (j < v) k2 = m - 1
+      else return true  // 見つかった
     }
+    false  // 見つからなかった
   }
 
   type Vertices = Seq[Vertex]
@@ -61,7 +60,7 @@ object G {
   }
 
   def is_path(g: Graph, s: Vertices): Boolean = {
-    is_walk(g, s) && Set(s).size == s.length  // 経過する頂点が重複しないことを集合に変換してから、大きさを調べることで確認している。
+    is_walk(g, s) && s.toSet.size == s.length  // 経過する頂点が重複しないことを集合に変換してから、大きさを調べることで確認している。
   }
 
   def is_cycle(g: Graph, s: Vertices): Boolean = {
@@ -101,7 +100,7 @@ object Traversal {
       val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
       found(s) = true
       val to_visit = Stack(s) // 今後，訪問すべき頂点群
-      while (!to_visit.isEmpty) { // 訪問先がなくなるまでループ
+      while (to_visit.nonEmpty) { // 訪問先がなくなるまでループ
         val u = to_visit.pop() // スタックから次に訪問すべき頂点を取り出す
         on_visit(u)
         g(u).foreach(v => { // 各隣接頂点について
@@ -121,7 +120,7 @@ object Traversal {
       val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
       found(s) = true
       val to_visit = Queue(s) // 今後，訪問すべき頂点群
-      while (!to_visit.isEmpty) { // 訪問先がなくなるまでループ
+      while (to_visit.nonEmpty) { // 訪問先がなくなるまでループ
         val u = to_visit.dequeue() // スタックから次に訪問すべき頂点を取り出す
         on_visit(u)
         g(u).foreach(v => { // 各隣接頂点について
@@ -149,7 +148,7 @@ object Distance {
     distance(s) = 0
     val to_visit = Queue(s) // 今後，訪問すべき頂点群
 
-    while (!to_visit.isEmpty) { // 訪問先がなくなるまでループ
+    while (to_visit.nonEmpty) { // 訪問先がなくなるまでループ
       val u = to_visit.dequeue() // スタックから次に訪問すべき頂点を取り出す
       g(u).foreach(v => { // 各隣接頂点について
         if (distance(v) < 0) { // 新発見のものについ
@@ -240,10 +239,10 @@ object Topological {
   val g = G.load("data/undirected.csv")
   G.output(g)
 
-  print("Visiting by DFS-rec:     "); Traversal.depth_first_rec(g, 0, print _); println()
-  print("Visiting by DFS (stack): "); Traversal.depth_first(g, 0, print _); println()
+  print("Visiting by DFS-rec:     "); Traversal.depth_first_rec(g, 0, print); println()
+  print("Visiting by DFS (stack): "); Traversal.depth_first(g, 0, print); println()
 
-  print("Visiting by BFS (queue): "); Traversal.breadth_first(g, 0, print _); println()
+  print("Visiting by BFS (queue): "); Traversal.breadth_first(g, 0, print); println()
 }
 
 @main def ex3_distances() = {
