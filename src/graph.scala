@@ -77,7 +77,7 @@ object Traversal {
 
   // グラフgの頂点sからの深さ優先探索（再帰）
   def depth_first_rec: Traversal[Unit] =
-    (g, s, on_visit) => {
+    (g: Graph, s: Vertex, on_visit: OnVisit) => {
       val visited = ArraySeq.fill(g.length)(false) // 訪問の有無を記録 (青or赤)
 
       // 頂点uの訪問
@@ -94,7 +94,7 @@ object Traversal {
 
   // グラフgの頂点sからの深さ優先探索（Stackを使用）
   def depth_first: Traversal[Unit] =
-    (g, s, on_visit) => {
+    (g: Graph, s: Vertex, on_visit: OnVisit) => {
       import scala.collection.mutable.Stack
 
       val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
@@ -114,12 +114,12 @@ object Traversal {
 
   // グラフgの頂点sからの幅優先探索（Queueを使用）
   def breadth_first: Traversal[Unit] =
-    (g, s, on_visit) => {
+    (g: Graph, s: Vertex, on_visit: OnVisit) => {
       import scala.collection.mutable.Queue
 
       val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
-      found(s) = true
       val to_visit = Queue(s) // 今後，訪問すべき頂点群
+      found(s) = true
       while (to_visit.nonEmpty) { // 訪問先がなくなるまでループ
         val u = to_visit.dequeue() // スタックから次に訪問すべき頂点を取り出す
         on_visit(u)
@@ -138,14 +138,14 @@ object Distance {
   import G._
 
   /**
-    * 幅優先探索の変形により，与えられた頂点からの距離を全頂点を計算
+    * 与えられた頂点 (s) から全頂点への距離を計算。幅優先探索の変形により実現。
     * found: ArraySeq[Boolean] の distance: ArraySeq[Int] への変形が要点
     */
   def breadth_first(g: Graph, s: Vertex): ArraySeq[Int] = {
     import scala.collection.mutable.Queue
 
     val distance = ArraySeq.fill(g.length)(-1) // 存在が認められた頂点のsからの距離
-    distance(s) = 0
+    distance(s) = 0  // 探索開始点 (s) から s 自身への距離は 0
     val to_visit = Queue(s) // 今後，訪問すべき頂点群
 
     while (to_visit.nonEmpty) { // 訪問先がなくなるまでループ
@@ -208,19 +208,19 @@ object Topological {
   }
 
   def sort(g: Graph): Queue[Vertex] = {
-    val found = ArraySeq.fill(g.length)(false)
-    val visited = Queue[Vertex]()
+    val found = ArraySeq.fill(g.length)(false)  // 行きがけ順の訪問録
+    val visited = Queue[Vertex]()  // 帰りがけ順の訪問順
 
     def visit(u: Vertex): Unit = {
       found(u) = true
       g(u).foreach(v => {
-        if (!found(v)) visit(v)
+        if (!found(v)) visit(v)  // 行きがけ順で未訪問の隣接頂点を訪問
       })
-      visited.enqueue(u)
+      visited.enqueue(u)  // 帰り際に訪問順に追加
     }
 
     for (s <- Range(0, g.length)) {
-      if (!found(s)) visit(s)
+      if (!found(s)) visit(s)  // 未訪問の頂点を起点に探索を開始（スライドの彩色作業開始）
     }
     visited.reverse
   }
