@@ -71,7 +71,7 @@ object G {
 
 object Traversal {
   import scala.collection.mutable.ArraySeq
-  import G._
+  import G.*
   type OnVisit = Vertex => Unit
   type Traversal[T] = (Graph, Vertex, OnVisit) => T
 
@@ -135,7 +135,7 @@ object Traversal {
 
 object Distance {
   import scala.collection.mutable.ArraySeq
-  import G._
+  import G.*
 
   /**
     * 与えられた頂点 (s) から全頂点への距離を計算。幅優先探索の変形により実現。
@@ -163,7 +163,7 @@ object Distance {
 
 object Search {
   import scala.collection.mutable.ArraySeq
-  import G._
+  import G.*
 
   def depth_first(g: Graph, s: Vertex, t: Vertex): Boolean = {
     val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
@@ -183,7 +183,7 @@ object Search {
 object Topological {
   import scala.collection.mutable.ArraySeq
   import scala.collection.mutable.Queue
-  import G._
+  import G.*
 
   def traverse(g: Graph): Unit = {
     val found = ArraySeq.fill(g.length)(false) // 存在が認められた頂点群
